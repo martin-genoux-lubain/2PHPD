@@ -65,8 +65,8 @@ La plateforme permet de :
 ### 1. Cloner le projet
 
 ```bash
-git clone <url-du-repository>
-cd <nom-du-projet>
+git clone [<url-du-repository>](https://github.com/martin-genoux-lubain/2PHPD)
+cd 2PHPD
 ```
 
 ### 2. Installer les dépendances PHP
