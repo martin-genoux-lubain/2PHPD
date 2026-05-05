@@ -65,7 +65,7 @@ La plateforme permet de :
 ### 1. Cloner le projet
 
 ```bash
-git clone [<url-du-repository>](https://github.com/martin-genoux-lubain/2PHPD)
+git clone https://github.com/martin-genoux-lubain/2PHPD
 cd 2PHPD
 ```
 
