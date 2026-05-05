@@ -1,291 +1,224 @@
-# Plateforme de Gestion de Tournois Sportifs
+# Plateforme de gestion de tournois sportifs
 
-Projet final Symfony/API Platform permettant de gérer des tournois sportifs, des joueurs, des inscriptions et des parties/matches.
+Application Symfony permettant de gérer des tournois sportifs, des joueurs, des inscriptions et des matchs. Le projet fournit une interface web, une interface d'administration EasyAdmin, une API REST via API Platform, des fixtures de démonstration et une commande Symfony de statistiques utilisateur.
 
-L'application expose une API REST et fournit une interface d'administration sécurisée réservée aux administrateurs.
+## Stack technique
 
----
-
-## Sommaire
-
-- [Technologies](#technologies)
-- [Fonctionnalités principales](#fonctionnalités-principales)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Base de données et migrations](#base-de-données-et-migrations)
-- [Fixtures](#fixtures)
-- [Lancement du projet](#lancement-du-projet)
-- [Authentification et sécurité](#authentification-et-sécurité)
-- [Interface d'administration](#interface-dadministration)
-- [Modèle de données](#modèle-de-données)
-- [API REST](#api-rest)
-- [Règles métier](#règles-métier)
-- [Notifications](#notifications)
-- [Commande Symfony de statistiques utilisateur](#commande-symfony-de-statistiques-utilisateur)
-- [Tests](#tests)
-- [Commandes Symfony utiles](#commandes-symfony-utiles)
-- [Critères d'évaluation couverts](#critères-dévaluation-couverts)
-
----
-
-## Technologies
-
-- PHP
-- Symfony
-- API Platform
-- Doctrine ORM
+- PHP 8.4+
+- Symfony 8
+- Doctrine ORM et Doctrine Migrations
+- SQLite
+- API Platform 4
+- EasyAdmin 5
 - Symfony Security
-- EasyAdmin
-- PHPUnit
-- Doctrine Fixtures
-- Faker
+- Twig
+- PHPUnit 13
+- Doctrine Fixtures et Faker
 
----
+## Fonctionnalités
 
-## Fonctionnalités principales
+- Inscription et connexion des utilisateurs.
+- Gestion des rôles `ROLE_USER` et `ROLE_ADMIN`.
+- Consultation des tournois publics.
+- Création de tournois par les utilisateurs connectés.
+- Modification des tournois par les administrateurs.
+- Gestion centralisée des utilisateurs, tournois, inscriptions et matchs depuis EasyAdmin.
+- API REST pour les joueurs, tournois, inscriptions et matchs.
+- Statut dynamique des tournois selon les dates : `à venir`, `en cours`, `terminé`.
+- Protection des opérations sensibles par règles de sécurité Symfony/API Platform.
+- Fixtures avec un administrateur, des joueurs, des tournois, des inscriptions et des matchs.
+- Commande CLI pour afficher les victoires, défaites et matchs nuls d'un utilisateur.
 
-La plateforme permet de :
+## Prérequis
 
-- Créer, consulter, modifier et supprimer des tournois sportifs.
-- Créer et gérer des utilisateurs/joueurs.
-- Inscrire des joueurs à des tournois.
-- Confirmer ou gérer les inscriptions.
-- Créer des parties entre joueurs inscrits à un tournoi.
-- Saisir les scores des matches.
-- Déterminer automatiquement le statut d'un match.
-- Définir un vainqueur de tournoi.
-- Envoyer des notifications selon les événements métier.
-- Administrer les tournois, joueurs, inscriptions et matches via une interface dédiée.
-- Afficher les statistiques de victoires/défaites d'un joueur via une commande Symfony.
-
----
+- PHP 8.4 ou supérieur
+- Composer
+- Symfony CLI, recommandé pour lancer le serveur local
 
 ## Installation
 
-### 1. Cloner le projet
-
-```bash
-git clone https://github.com/martin-genoux-lubain/2PHPD
-cd 2PHPD
-```
-
-### 2. Installer les dépendances PHP
-
 ```bash
 composer install
+php bin/console doctrine:database:create --if-not-exists
+php bin/console doctrine:migrations:migrate
+php bin/console doctrine:fixtures:load
 ```
 
-### 3. Installer les dépendances nécessaires si elles ne sont pas déjà présentes
-
-```bash
-composer require api
-composer require doctrine
-composer require symfony/security-bundle
-composer require easycorp/easyadmin-bundle
-composer require --dev symfony/maker-bundle
-composer require --dev doctrine/doctrine-fixtures-bundle fakerphp/faker
-```
+La commande de fixtures vide les tables avant de charger les données de démonstration.
 
 ## Configuration
 
-Créer ou modifier le fichier .env.local :
+La configuration locale se fait dans `.env.local`.
 
-```bash
-APP_ENV=dev
-APP_SECRET=change_me
-
-DATABASE_URL="mysql://user:password@127.0.0.1:3306/tournament_platform?serverVersion=8.0&charset=utf8mb4"
-```
-
-Adapter les informations de connexion selon votre environnement local.
-
-Exemple avec PostgreSQL :
-
-```bash
-DATABASE_URL="postgresql://user:password@127.0.0.1:5432/tournament_platform?serverVersion=16&charset=utf8"
-```
-
-## Base de données et migrations
-
-Créer la base de données :
-
-```bash
-php bin/console doctrine:database:create
-```
-
-Générer une migration :
-
-```bash
-php bin/console make:migration
-```
-
-Exécuter les migrations :
-
-```bash
-php bin/console doctrine:migrations:migrate
-```
-
-## Fixtures
-
-Installer les fixtures si nécessaire :
-
-```bash
-composer require --dev doctrine/doctrine-fixtures-bundle fakerphp/faker
-```
-
-Créer une classe de fixtures :
-
-```bash
-php bin/console make:fixtures
-```
-
-Charger les données de test :
-
-```bash
-php bin/console doctrine:fixtures:load
-```
-Attention : cette commande vide généralement les tables avant d'insérer les données de test.
-
-## Lancement du projet
-
-Lancer le serveur Symfony :
+## Lancement
 
 ```bash
 symfony server:start
 ```
 
-L'API est ensuite accessible à l'adresse :
+URLs principales :
 
-```bash
-http://127.0.0.1:8000/api
-```
+| Zone | URL |
+| --- | --- |
+| Accueil | `http://127.0.0.1:8000/` |
+| Tournois | `http://127.0.0.1:8000/tournois` |
+| Connexion | `http://127.0.0.1:8000/login` |
+| Inscription | `http://127.0.0.1:8000/inscription` |
+| Administration | `http://127.0.0.1:8000/admin` |
+| API Platform | `http://127.0.0.1:8000/api` |
 
-La documentation API Platform est accessible à l'adresse :
+## Comptes de démonstration
 
-## Authentification et sécurité
+Les fixtures créent un administrateur :
 
-Le projet utilise le composant Security de Symfony.
+| Identifiant | Mot de passe | Rôle |
+| --- | --- | --- |
+| `admin` | `password` | `ROLE_ADMIN` |
 
-Commandes conseillées pour créer l'utilisateur et l'authentification :
+Les joueurs générés par Faker utilisent aussi le mot de passe `password`.
 
-```bash
-php bin/console make:user
-php bin/console make:auth
-```
+## Routes web
 
-Les mots de passe des utilisateurs sont hashés avec le service Symfony dédié.
+| Méthode | Route | Accès | Description |
+| --- | --- | --- | --- |
+| `GET` | `/` | Public | Page d'accueil |
+| `GET` | `/tournois` | Public | Liste des tournois |
+| `GET` | `/tournois/{id}` | Public | Détail d'un tournoi |
+| `GET`, `POST` | `/tournois/nouveau` | `ROLE_USER` | Création d'un tournoi |
+| `GET`, `POST` | `/tournois/{id}/modifier` | `ROLE_ADMIN` | Modification d'un tournoi |
+| `GET`, `POST` | `/inscription` | Public | Création d'un compte |
+| `GET`, `POST` | `/login` | Public | Connexion |
+| `GET` | `/logout` | Utilisateur connecté | Déconnexion |
+| `GET` | `/admin` | `ROLE_ADMIN` | Dashboard EasyAdmin |
 
-Les rôles utilisés sont :
+## API REST
 
-ROLE_USER : utilisateur standard / joueur
-ROLE_ADMIN : administrateur
+Toutes les routes API sont préfixées par `/api`.
 
-## Interface d'administration
+### Joueurs
 
-L'administration est réalisée avec EasyAdmin.
+| Méthode | Route | Accès |
+| --- | --- | --- |
+| `GET` | `/api/players` | Public |
+| `GET` | `/api/players/{id}` | Public |
+| `POST` | `/api/register` | Public |
+| `POST` | `/api/players` | `ROLE_ADMIN` |
+| `PUT` | `/api/players/{id}` | Propriétaire ou `ROLE_ADMIN` |
+| `DELETE` | `/api/players/{id}` | Propriétaire ou `ROLE_ADMIN` |
 
-Installation :
+### Tournois
 
-```bash
-composer require easycorp/easyadmin-bundle
-```
+| Méthode | Route | Accès |
+| --- | --- | --- |
+| `GET` | `/api/tournaments` | Public |
+| `GET` | `/api/tournaments/{id}` | Public |
+| `POST` | `/api/tournaments` | `ROLE_USER` |
+| `PUT` | `/api/tournaments/{id}` | Organisateur ou `ROLE_ADMIN` |
+| `DELETE` | `/api/tournaments/{id}` | Organisateur ou `ROLE_ADMIN` |
 
-Création du dashboard :
+### Inscriptions
 
-```bash
-php bin/console make:admin:dashboard
-```
+| Méthode | Route | Accès |
+| --- | --- | --- |
+| `GET` | `/api/tournaments/{tournamentId}/registrations` | Public |
+| `POST` | `/api/tournaments/{tournamentId}/registrations` | `ROLE_USER` |
+| `DELETE` | `/api/tournaments/{tournamentId}/registrations/{id}` | Joueur inscrit ou `ROLE_ADMIN` |
 
-Création des CRUD d'administration :
+Une contrainte d'unicité empêche un joueur de s'inscrire plusieurs fois au même tournoi.
 
-```bash
-php bin/console make:admin:crud User
-php bin/console make:admin:crud Tournament
-php bin/console make:admin:crud Registration
-php bin/console make:admin:crud SportMatch
-```
+### Matchs
 
-L'interface d'administration doit être accessible uniquement aux utilisateurs ayant le rôle ROLE_ADMIN
-
-URL typique :
-
-```bash
-https://127.0.0.1/admin
-```
-
-L'administration permet de gérer de manière centralisée :
-
-Les utilisateurs
-Les tournois
-Les inscriptions
-Les parties / matches
+| Méthode | Route | Accès |
+| --- | --- | --- |
+| `GET` | `/api/tournaments/{tournamentId}/sport-matchs` | Public |
+| `GET` | `/api/tournaments/{tournamentId}/sport-matchs/{id}` | Public |
+| `POST` | `/api/tournaments/{tournamentId}/sport-matchs` | `ROLE_ADMIN` |
+| `PUT` | `/api/tournaments/{tournamentId}/sport-matchs/{id}` | Joueur du match ou `ROLE_ADMIN` |
+| `DELETE` | `/api/tournaments/{tournamentId}/sport-matchs/{id}` | `ROLE_ADMIN` |
 
 ## Modèle de données
 
 ### User
 
-Entité utilisateur créée via make:user.
-
-Champs :
-
-| Champ | Type | Contraintes |
-| --- | --- | --- |
-| lastName | string(100) | non null |
-| firstName | string(100) | non null |
-| username | string(100) | unique, non null |
-| emailAddress | string(180) | unique, non null |
-| password | string | hashé |
-| status | string(20) | actif, suspendu, banni |
-| roles | json | ROLE_USER, ROLE_ADMIN |
+| Champ | Description |
+| --- | --- |
+| `username` | Identifiant unique de connexion |
+| `emailAddress` | Adresse email unique |
+| `password` | Mot de passe hashé |
+| `firstName`, `lastName` | Identité du joueur |
+| `status` | Statut utilisateur, par défaut `actif` |
+| `roles` | Rôles Symfony, au minimum `ROLE_USER` |
 
 ### Tournament
 
-| Champ | Type | Contraintes |
-| --- | --- | --- |
-| tournamentName | string(255) | non null |
-| startDate | date_immutable | non null |
-| endDate | date_immutable | non null |
-| location | string(255) | nullable |
-| description | text | non null |
-| maxParticipants | integer | non null |
-| sport | string(100) | non null |
-| organizer | ManyToOne vers User | non null |
-| winner | ManyToOne vers User | nullable |
-| games | OneToMany vers SportMatch | mappedBy tournament |
-
-Le champ status du tournoi ne doit pas être stocké en base de données.
-
-Il doit être calculé dynamiquement selon les dates :
-
-avant la date de début : à venir
-entre la date de début et la date de fin : en cours
-après la date de fin : terminé
+| Champ | Description |
+| --- | --- |
+| `tournamentName` | Nom du tournoi |
+| `startDate`, `endDate` | Dates de début et de fin |
+| `location` | Lieu optionnel |
+| `description` | Description du tournoi |
+| `maxParticipants` | Nombre maximum de participants |
+| `sport` | Sport concerné |
+| `organizer` | Utilisateur organisateur |
+| `winner` | Vainqueur optionnel |
+| `games` | Matchs du tournoi |
+| `status` | Champ calculé, non stocké en base |
 
 ### Registration
 
-| Champ | Type | Contraintes |
-| --- | --- | --- |
-| player | ManyToOne vers User | non null |
-| tournament | ManyToOne vers Tournament | non null |
-| registrationDate | datetime_immutable | non null |
-| status | string(20) | confirmée, en attente |
-
-Une contrainte d'unicité doit être ajoutée sur le couple :
-
-```bash
-(player, tournament)
-```
-
-Cela empêche un même joueur de s'inscrire plusieurs fois au même tournoi.
+| Champ | Description |
+| --- | --- |
+| `player` | Joueur inscrit |
+| `tournament` | Tournoi concerné |
+| `registrationDate` | Date d'inscription |
+| `status` | `en attente` par défaut, ou `confirmée` |
 
 ### SportMatch
 
-| Champ | Type | Contraintes |
-| --- | --- | --- |
-| tournament | ManyToOne vers Tournament | non null |
-| player1 | ManyToOne vers User | non null |
-| player2 | ManyToOne vers User | non null |
-| matchDate | datetime_immutable | non null |
-| scorePlayer1 | integer | nullable |
-| scorePlayer2 | integer | nullable |
-| status | string(20) | en attente, en cours, terminé |
+| Champ | Description |
+| --- | --- |
+| `tournament` | Tournoi concerné |
+| `player1`, `player2` | Joueurs du match |
+| `matchDate` | Date du match |
+| `scorePlayer1`, `scorePlayer2` | Scores optionnels |
+| `status` | `en attente` par défaut, ou `terminé` |
+
+## Commande de statistiques
+
+Afficher les statistiques globales d'un utilisateur :
+
+```bash
+php bin/console app:user:stats <userId>
+```
+
+Afficher les statistiques d'un utilisateur pour un tournoi :
+
+```bash
+php bin/console app:user:stats <userId> <tournamentId>
+```
+
+La commande affiche les victoires, défaites, matchs nuls et le nombre de matchs joués.
+
+## Tests
+
+```bash
+php bin/phpunit
+```
+
+Tests présents :
+
+- configuration des sous-ressources API ;
+- calcul du statut d'un tournoi ;
+- logique du processor de matchs ;
+- commande `app:user:stats`.
+
+## Commandes utiles
+
+```bash
+php bin/console doctrine:migrations:migrate
+php bin/console doctrine:fixtures:load
+php bin/console cache:clear
+php bin/console debug:router
+php bin/console debug:container
+php bin/phpunit
+```
