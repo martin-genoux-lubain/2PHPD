@@ -8,8 +8,6 @@ Application Symfony permettant de gérer des tournois sportifs, des joueurs, des
 - Symfony 8
 - Doctrine ORM et Doctrine Migrations
 - SQLite
-- API Platform 4
-- EasyAdmin 5
 - Symfony Security
 - Twig
 - PHPUnit 13
